@@ -15,12 +15,13 @@ import { cn } from "@/lib/utils";
 
 interface SearchBarProps {
   onSearch: (query: string, filters: SearchFilters) => void;
+  showFilters?: boolean;
   className?: string;
 }
 
-export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
+export const SearchBar = ({ onSearch, showFilters = true, className }: SearchBarProps) => {
   const [searchQuery, setSearchQuery] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
+  const [filtersVisible, setFiltersVisible] = useState(false);
   const [filters, setFilters] = useState<SearchFilters>({
     sortBy: "rating"
   });
@@ -65,25 +66,27 @@ export const SearchBar = ({ onSearch, className }: SearchBarProps) => {
           <Search className="w-4 h-4 mr-2" />
           Suchen
         </Button>
-        <Button
-          variant="outline"
-          onClick={() => setShowFilters(!showFilters)}
-          className={cn(
-            "h-12 px-4",
-            (showFilters || hasActiveFilters) && "bg-primary/10 border-primary/20"
-          )}
-        >
-          <SlidersHorizontal className="w-4 h-4" />
-          {hasActiveFilters && (
-            <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
-              !
-            </Badge>
-          )}
-        </Button>
+        {showFilters && (
+          <Button
+            variant="outline"
+            onClick={() => setFiltersVisible(!filtersVisible)}
+            className={cn(
+              "h-12 px-4",
+              (filtersVisible || hasActiveFilters) && "bg-primary/10 border-primary/20"
+            )}
+          >
+            <SlidersHorizontal className="w-4 h-4" />
+            {hasActiveFilters && (
+              <Badge variant="secondary" className="ml-2 h-5 w-5 p-0 flex items-center justify-center text-xs">
+                !
+              </Badge>
+            )}
+          </Button>
+        )}
       </div>
 
       {/* Filters */}
-      {showFilters && (
+      {showFilters && filtersVisible && (
         <div className="bg-card border rounded-lg p-4 space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             {/* Sort By */}

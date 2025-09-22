@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -6,12 +6,13 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { WifiSignal } from "@/components/WifiSignal";
-import { Star, Wifi, Gauge, Upload, Download } from "lucide-react";
-import { Hotel } from "@/types/hotel";
+import { Star, Wifi, Gauge, Upload, Download, Timer } from "lucide-react";
+import { Hotel, SpeedtestResult } from "@/types/hotel";
 import { cn } from "@/lib/utils";
 
 interface ReviewFormProps {
   hotel: Hotel;
+  speedtestResults?: SpeedtestResult | null;
   onSubmit: (review: {
     rating: number;
     comment: string;
@@ -22,13 +23,22 @@ interface ReviewFormProps {
   onCancel: () => void;
 }
 
-export const ReviewForm = ({ hotel, onSubmit, onCancel }: ReviewFormProps) => {
+export const ReviewForm = ({ hotel, speedtestResults, onSubmit, onCancel }: ReviewFormProps) => {
   const [rating, setRating] = useState(0);
   const [comment, setComment] = useState("");
   const [speedDown, setSpeedDown] = useState("");
   const [speedUp, setSpeedUp] = useState("");
   const [ping, setPing] = useState("");
   const [hoveredStar, setHoveredStar] = useState(0);
+
+  useEffect(() => {
+    if (speedtestResults) {
+      setSpeedDown(speedtestResults.downloadSpeed.toString());
+      setSpeedUp(speedtestResults.uploadSpeed.toString());
+      setPing(speedtestResults.ping.toString());
+      setComment(`WLAN-Geschwindigkeit getestet:\n• Download: ${speedtestResults.downloadSpeed} Mbps\n• Upload: ${speedtestResults.uploadSpeed} Mbps\n• Ping: ${speedtestResults.ping} ms\n\n`);
+    }
+  }, [speedtestResults]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -72,7 +82,7 @@ export const ReviewForm = ({ hotel, onSubmit, onCancel }: ReviewFormProps) => {
   );
 
   return (
-    <div className="max-w-2xl mx-auto">
+    <div className="max-w-2xl mx-auto p-4">
       <Card className="card-shadow">
         <CardHeader>
           <CardTitle className="flex items-center gap-3">
@@ -86,6 +96,41 @@ export const ReviewForm = ({ hotel, onSubmit, onCancel }: ReviewFormProps) => {
         </CardHeader>
 
         <CardContent>
+          {/* Speedtest Results Display */}
+          {speedtestResults && (
+            <div className="mb-6 p-4 bg-primary/5 border border-primary/20 rounded-lg">
+              <div className="flex items-center mb-3">
+                <div className="w-8 h-8 bg-primary/10 rounded-full flex items-center justify-center mr-3">
+                  <Wifi className="w-4 h-4 text-primary" />
+                </div>
+                <div>
+                  <h4 className="font-semibold text-primary">Speedtest-Ergebnisse übernommen</h4>
+                  <p className="text-xs text-muted-foreground">
+                    {speedtestResults.timestamp.toLocaleString()}
+                  </p>
+                </div>
+              </div>
+              
+              <div className="grid grid-cols-3 gap-4 text-center">
+                <div>
+                  <Download className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <div className="text-sm font-semibold">{speedtestResults.downloadSpeed} Mbps</div>
+                  <div className="text-xs text-muted-foreground">Download</div>
+                </div>
+                <div>
+                  <Upload className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <div className="text-sm font-semibold">{speedtestResults.uploadSpeed} Mbps</div>
+                  <div className="text-xs text-muted-foreground">Upload</div>
+                </div>
+                <div>
+                  <Timer className="w-4 h-4 text-primary mx-auto mb-1" />
+                  <div className="text-sm font-semibold">{speedtestResults.ping} ms</div>
+                  <div className="text-xs text-muted-foreground">Ping</div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Rating */}
             <div className="space-y-3">

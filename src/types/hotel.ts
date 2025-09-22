@@ -30,3 +30,10 @@ export interface SearchFilters {
   priceRange?: Hotel["priceRange"][];
   sortBy: "rating" | "distance" | "reviews";
 }
+
+export interface SpeedtestResult {
+  downloadSpeed: number; // Mbps
+  uploadSpeed: number;   // Mbps
+  ping: number;          // ms
+  timestamp: Date;
+}
